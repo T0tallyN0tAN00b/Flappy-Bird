@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flappy Bird Clone</title>
+  <title>Flappy Bird Clone with High Score</title>
   <style>
     body, html { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #70c5ce; }
     canvas { border: 2px solid #000; background: #70c5ce; }
@@ -16,12 +16,13 @@
     const ctx = canvas.getContext("2d");
 
     // Game Variables
-    let bird = { x: 50, y: 150, width: 20, height: 20, gravity: 0.4, lift: -10, velocity: 0 };
+    let bird = { x: 50, y: 150, width: 20, height: 20, gravity: 0.6, lift: -10, velocity: 0 };
     let pipes = [];
     let score = 0;
+    let highScore = localStorage.getItem("highScore") || 0;
     let gameRunning = false;
 
-    // Load images
+    // Colors and gap size
     const birdColor = "#f00";
     const pipeColor = "#0f0";
     const gap = 100;
@@ -87,10 +88,11 @@
             ctx.fillRect(pipe.x, pipe.y, pipe.width, pipe.height);
         }
 
-        // Draw score
+        // Draw score and high score
         ctx.fillStyle = "#000";
         ctx.font = "20px Arial";
         ctx.fillText(`Score: ${score}`, 10, 25);
+        ctx.fillText(`High Score: ${highScore}`, 10, 50);
     }
 
     // Game loop
@@ -102,10 +104,14 @@
         }
     }
 
-    // End the game
+    // End the game and update high score if needed
     function gameOver() {
         gameRunning = false;
-        alert(`Game Over! Your score: ${score}`);
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem("highScore", highScore);
+        }
+        alert(`Game Over! Your score: ${score}\nHigh Score: ${highScore}`);
     }
 
     startGame();
