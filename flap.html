@@ -22,32 +22,17 @@
     let highScore = localStorage.getItem("highScore") || 0;
     let gameRunning = false;
 
-    // Load images with checks for completion
+    // Load images
     const birdImage = new Image();
     const pipeImage = new Image();
     const backgroundImage = new Image();
-    let imagesLoaded = 0;
-
-    // Set image sources
     birdImage.src = 'https://example.com/bird.png'; // Replace with your bird texture
     pipeImage.src = 'https://example.com/pipe.png'; // Replace with your pipe texture
     backgroundImage.src = 'https://example.com/background.png'; // Replace with your background texture
-
-    // Image loading check
-    [birdImage, pipeImage, backgroundImage].forEach(img => {
-      img.onload = () => {
-        imagesLoaded++;
-        if (imagesLoaded === 3) startGame();
-      };
-      img.onerror = () => {
-        console.error("An image failed to load.");
-      };
-    });
-
     const gap = 150;
 
     // Control the bird with a mouse click or space bar
-    canvas.addEventListener("click", () => { if (gameRunning) bird.velocity = bird.lift; });
+    canvas.addEventListener("click", () => { if (gameRunning) bird.velocity = bird.lift; else startGame(); });
     document.addEventListener("keydown", e => { if (e.code === "Space") bird.velocity = bird.lift; });
 
     // Start the game
@@ -57,4 +42,16 @@
       score = 0;
       gameRunning = true;
       loop();
-    
+    }
+
+    // Create pipes
+    function createPipe() {
+      let pipeHeight = Math.floor(Math.random() * (canvas.height - gap - 20) + 10);
+      pipes.push({ x: canvas.width, y: 0, width: 30, height: pipeHeight });
+      pipes.push({ x: canvas.width, y: pipeHeight + gap, width: 30, height: canvas.height - pipeHeight - gap });
+    }
+
+    // Update game state
+    function update() {
+      bird.velocity += bird.gravity;
+      b
