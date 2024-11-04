@@ -3,33 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Basic Flappy Bird Clone</title>
-  <style>
-    body, html { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #70c5ce; }
-    canvas { border: 2px solid #000; }
-  </style>
+  <title>Flappy Bird Test</title>
 </head>
 <body>
   <canvas id="gameCanvas" width="320" height="480"></canvas>
   <script>
+    alert("JavaScript is working!"); // This should pop up if JavaScript is functioning.
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    // Game Variables
-    let bird = { x: 50, y: 150, width: 20, height: 20, gravity: 0.6, lift: -10, velocity: 0 };
-    let pipes = [];
-    let score = 0;
-    let highScore = localStorage.getItem("highScore") || 0;
-    let gameRunning = false;
-    const gap = 150;
-
-    // Control the bird with a mouse click or space bar
-    canvas.addEventListener("click", () => { if (gameRunning) bird.velocity = bird.lift; else startGame(); });
-    document.addEventListener("keydown", e => { if (e.code === "Space") bird.velocity = bird.lift; });
-
-    // Start the game
-    function startGame() {
-      bird = { x: 50, y: 150, width: 20, height: 20, gravity: 0.6, lift: -10, velocity: 0 };
-      pipes = [];
-      score = 0;
-      game
+    // Test drawing a simple rectangl
