@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flappy Bird Clone with High Score and Textures</title>
+  <title>Basic Flappy Bird Clone</title>
   <style>
     body, html { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #70c5ce; }
     canvas { border: 2px solid #000; }
@@ -21,14 +21,6 @@
     let score = 0;
     let highScore = localStorage.getItem("highScore") || 0;
     let gameRunning = false;
-
-    // Load images
-    const birdImage = new Image();
-    const pipeImage = new Image();
-    const backgroundImage = new Image();
-    birdImage.src = 'https://example.com/bird.png'; // Replace with your bird texture
-    pipeImage.src = 'https://example.com/pipe.png'; // Replace with your pipe texture
-    backgroundImage.src = 'https://example.com/background.png'; // Replace with your background texture
     const gap = 150;
 
     // Control the bird with a mouse click or space bar
@@ -40,18 +32,4 @@
       bird = { x: 50, y: 150, width: 20, height: 20, gravity: 0.6, lift: -10, velocity: 0 };
       pipes = [];
       score = 0;
-      gameRunning = true;
-      loop();
-    }
-
-    // Create pipes
-    function createPipe() {
-      let pipeHeight = Math.floor(Math.random() * (canvas.height - gap - 20) + 10);
-      pipes.push({ x: canvas.width, y: 0, width: 30, height: pipeHeight });
-      pipes.push({ x: canvas.width, y: pipeHeight + gap, width: 30, height: canvas.height - pipeHeight - gap });
-    }
-
-    // Update game state
-    function update() {
-      bird.velocity += bird.gravity;
-      b
+      game
