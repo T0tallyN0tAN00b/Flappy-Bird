@@ -3,143 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced Flappy Bird Clone</title>
-  <style>
-    body, html { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: linear-gradient(#70c5ce, #d0e4f5); }
-    canvas { border: 2px solid #000; }
-  </style>
+  <title>Chat App</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <canvas id="gameCanvas" width="320" height="480"></canvas>
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-
-    // Game Variables
-    let bird = { x: 50, y: 150, width: 20, height: 20, gravity: 0.6, lift: -10, velocity: 0 };
-    let pipes = [];
-    let score = 0;
-    let highScore = localStorage.getItem("highScore") || 0;
-    let gameRunning = false;
-
-    // Load images
-    const birdImage = new Image();
-    const pipeImage = new Image();
-    const backgroundImage = new Image();
-    birdImage.src = 'https://example.com/bird.png'; // Replace with your bird texture
-    pipeImage.src = 'https://example.com/pipe.png'; // Replace with your pipe texture
-    backgroundImage.src = 'https://example.com/background.png'; // Replace with your background texture
-    let imagesLoaded = 0;
-
-    // Image loading check
-    [birdImage, pipeImage, backgroundImage].forEach(img => {
-      img.onload = () => {
-        imagesLoaded++;
-        if (imagesLoaded === 3) startGame();
-      };
-      img.onerror = () => console.error("An image failed to load.");
-    });
-
-    const gap = 150;
-    const maxPipeSpeed = 2.5;
-    const minPipeSpeed = 1.5;
-
-    // Background variables
-    let bgX = 0;
-    let bgScrollSpeed = 1;
-
-    // Control bird with mouse click or space bar
-    canvas.addEventListener("click", () => { if (gameRunning) bird.velocity = bird.lift; });
-    document.addEventListener("keydown", e => { if (e.code === "Space") bird.velocity = bird.lift; });
-
-    // Start the game
-    function startGame() {
-      bird = { x: 50, y: 150, width: 20, height: 20, gravity: 0.6, lift: -10, velocity: 0, acceleration: 0.1 };
-      pipes = [];
-      score = 0;
-      gameRunning = true;
-      loop();
-    }
-
-    // Create pipes with varying speeds
-    function createPipe() {
-      const pipeHeight = Math.floor(Math.random() * (canvas.height - gap - 20) + 10);
-      const pipeSpeed = Math.random() * (maxPipeSpeed - minPipeSpeed) + minPipeSpeed;
-      pipes.push({ x: canvas.width, y: 0, width: 30, height: pipeHeight, speed: pipeSpeed });
-      pipes.push({ x: canvas.width, y: pipeHeight + gap, width: 30, height: canvas.height - pipeHeight - gap, speed: pipeSpeed });
-    }
-
-    // Update game state
-    function update() {
-      bird.velocity += bird.gravity + bird.acceleration;
-      bird.y += bird.velocity;
-      if (bird.y + bird.height >= canvas.height) gameOver();
-
-      // Move background
-      bgX -= bgScrollSpeed;
-      if (bgX <= -canvas.width) bgX = 0;
-
-      for (let i = pipes.length - 1; i >= 0; i--) {
-        pipes[i].x -= pipes[i].speed;
-
-        // Remove off-screen pipes
-        if (pipes[i].x + pipes[i].width < 0) pipes.splice(i, 1);
-
-        // Collision detection
-        if (bird.x < pipes[i].x + pipes[i].width && bird.x + bird.width > pipes[i].x &&
-            bird.y < pipes[i].y + pipes[i].height && bird.y + bird.height > pipes[i].y) {
-          gameOver();
-        }
-      }
-
-      // Add score and new pipes
-      if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 150) {
-        createPipe();
-        score++;
-      }
-    }
-
-    // Draw everything on the canvas
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw scrolling background
-      ctx.drawImage(backgroundImage, bgX, 0, canvas.width, canvas.height);
-      ctx.drawImage(backgroundImage, bgX + canvas.width, 0, canvas.width, canvas.height);
-
-      // Draw bird
-      ctx.drawImage(birdImage, bird.x, bird.y, bird.width, bird.height);
-
-      // Draw pipes with moving animation
-      for (let pipe of pipes) {
-        ctx.drawImage(pipeImage, pipe.x, pipe.y, pipe.width, pipe.height);
-      }
-
-      // Draw score and high score
-      ctx.fillStyle = "#000";
-      ctx.font = "20px Arial";
-      ctx.fillText(`Score: ${score}`, 10, 25);
-      ctx.fillText(`High Score: ${highScore}`, 10, 50);
-    }
-
-    // Game loop
-    function loop() {
-      if (gameRunning) {
-        update();
-        draw();
-        requestAnimationFrame(loop);
-      }
-    }
-
-    // End the game and update high score if needed
-    function gameOver() {
-      gameRunning = false;
-      if (score > highScore) {
-        highScore = score;
-        localStorage.setItem("highScore", highScore);
-      }
-      alert(`You suck! Your score: ${score}\nHigh Score: ${highScore}`);
-    }
-  </script>
+  <div id="chat-container">
+    <div id="messages"></div>
+    <input type="text" id="message-input" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
