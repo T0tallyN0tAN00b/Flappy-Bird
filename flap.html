@@ -1,123 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Chat App</title>
-  <style>
-    /* Expanded styles for the chat interface */
-    body {
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
-    }
-    #chat-container {
-      width: 80%; /* Increase width */
-      max-width: 600px;
-      height: 80vh; /* Increase height */
-      display: flex;
-      flex-direction: column;
-      border: 1px solid #ccc;
-      padding: 10px;
-      background-color: #ffffff;
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    #messages {
-      flex: 1;
-      overflow-y: auto;
-      border-bottom: 1px solid #ccc;
-      margin-bottom: 10px;
-      padding: 10px;
-      background-color: #f9f9f9;
-    }
-    #message-input {
-      flex-shrink: 0;
-      width: calc(100% - 70px);
-      padding: 10px;
-      margin-right: 10px;
-      box-sizing: border-box;
-    }
-    .input-container {
-      display: flex;
-      align-items: center;
-    }
-    button {
-      width: 60px;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-    .message {
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 5px;
-      background-color: #e1f5fe;
-      word-wrap: break-word;
-    }
-    .username {
-      font-weight: bold;
-      color: #0277bd;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario Side Scroller</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <div id="chat-container">
-    <div id="messages"></div>
-    <div class="input-container">
-      <input type="text" id="message-input" placeholder="Type your message...">
-      <button onclick="sendMessage()">Send</button>
+    <div id="game-container">
+        <div id="player"></div>
     </div>
-  </div>
-
-  <script>
-    // Ask for the user's name when the page loads
-    let username = prompt("Enter your name:");
-
-    // If the user cancels or leaves it blank, set a default name
-    if (!username || username.trim() === "") {
-      username = "Anonymous";
-    }
-
-    // Function to send a message and display it in the chat window
-    function sendMessage() {
-      const messageInput = document.getElementById("message-input");
-      const messages = document.getElementById("messages");
-
-      // Check if the input is not empty before sending
-      if (messageInput.value.trim() === "") {
-        alert("Please type a message!");
-        return;
-      }
-
-      // Create a new message element
-      const newMessage = document.createElement("div");
-      newMessage.classList.add("message");
-
-      // Add the username and message text
-      const nameElement = document.createElement("span");
-      nameElement.classList.add("username");
-      nameElement.textContent = `${username}: `;
-      
-      const messageText = document.createTextNode(messageInput.value);
-
-      // Append name and message text to the message div
-      newMessage.appendChild(nameElement);
-      newMessage.appendChild(messageText);
-
-      // Add the new message to the messages container
-      messages.appendChild(newMessage);
-
-      // Clear the input field for the next message
-      messageInput.value = "";
-
-      // Scroll to the bottom of the messages container
-      messages.scrollTop = messages.scrollHeight;
-    }
-  </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
