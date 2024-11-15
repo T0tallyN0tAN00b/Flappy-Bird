@@ -76,7 +76,15 @@
       newMessage.classList.add("message");
 
       // Add the username and message text
-      newMessage.innerHTML = `<span class="username">${username}:</span> ${messageInput.value}`;
+      const nameElement = document.createElement("span");
+      nameElement.classList.add("username");
+      nameElement.textContent = `${username}: `;
+      
+      const messageText = document.createTextNode(messageInput.value);
+
+      // Append name and message text to the message div
+      newMessage.appendChild(nameElement);
+      newMessage.appendChild(messageText);
 
       // Add the new message to the messages container
       messages.appendChild(newMessage);
