@@ -3,15 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat App</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Simple Chat App</title>
+  <style>
+    /* Basic styles for the chat interface */
+    #chat-container {
+      width: 300px;
+      margin: 0 auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+    }
+    #messages {
+      height: 200px;
+      overflow-y: auto;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 10px;
+      padding: 5px;
+      background-color: #f9f9f9;
+    }
+    #message-input {
+      width: calc(100% - 60px);
+      padding: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 50px;
+      padding: 5px;
+      box-sizing: border-box;
+    }
+    .message {
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 3px;
+      background-color: #e1f5fe;
+    }
+  </style>
 </head>
 <body>
+
   <div id="chat-container">
     <div id="messages"></div>
     <input type="text" id="message-input" placeholder="Type your message...">
     <button onclick="sendMessage()">Send</button>
   </div>
-  <script src="script.js"></script>
+
+  <script>
+    // Function to send a message and display it in the chat window
+    function sendMessage() {
+      const messageInput = document.getElementById("message-input");
+      const messages = document.getElementById("messages");
+
+      // Create a new message element and add the message text
+      const newMessage = document.createElement("div");
+      newMessage.classList.add("message");
+      newMessage.textContent = messageInput.value;
+
+      // Add the new message to the messages container
+      messages.appendChild(newMessage);
+
+      // Clear the input field for the next message
+      messageInput.value = "";
+
+      // Scroll to the bottom of the messages container
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
+
 </body>
 </html>
