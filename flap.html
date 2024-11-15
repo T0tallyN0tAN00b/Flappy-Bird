@@ -28,46 +28,4 @@
     }
     button {
       width: 50px;
-      padding: 5px;
-      box-sizing: border-box;
-    }
-    .message {
-      margin: 5px 0;
-      padding: 5px;
-      border-radius: 3px;
-      background-color: #e1f5fe;
-    }
-  </style>
-</head>
-<body>
-
-  <div id="chat-container">
-    <div id="messages"></div>
-    <input type="text" id="message-input" placeholder="Type your message...">
-    <button onclick="sendMessage()">Send</button>
-  </div>
-
-  <script>
-    // Function to send a message and display it in the chat window
-    function sendMessage() {
-      const messageInput = document.getElementById("message-input");
-      const messages = document.getElementById("messages");
-
-      // Create a new message element and add the message text
-      const newMessage = document.createElement("div");
-      newMessage.classList.add("message");
-      newMessage.textContent = messageInput.value;
-
-      // Add the new message to the messages container
-      messages.appendChild(newMessage);
-
-      // Clear the input field for the next message
-      messageInput.value = "";
-
-      // Scroll to the bottom of the messages container
-      messages.scrollTop = messages.scrollHeight;
-    }
-  </script>
-
-</body>
-</html>
+     
