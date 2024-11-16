@@ -60,9 +60,7 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io();
-
-    // Reference to DOM elements
+    const socket = io(); // Connects to the WebSocket server
     const messages = document.getElementById("messages");
     const messageInput = document.getElementById("message-input");
 
@@ -74,13 +72,4 @@
       messages.scrollTop = messages.scrollHeight;
     });
 
-    // Send a message to the server
-    function sendMessage() {
-      if (messageInput.value.trim() !== "") {
-        socket.emit("chat message", messageInput.value);
-        messageInput.value = "";
-      }
-    }
-  </script>
-</body>
-</html>
+    // Send a message to 
