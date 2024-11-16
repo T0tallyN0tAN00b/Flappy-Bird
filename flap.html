@@ -3,73 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Real-Time Chat</title>
+  <title>Simple Platformer</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f0f0f0;
-    }
-    #chat-container {
-      width: 80%;
-      max-width: 600px;
-      height: 80vh;
-      display: flex;
-      flex-direction: column;
-      border: 1px solid #ccc;
-      background: white;
-      padding: 10px;
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    #messages {
-      flex: 1;
-      overflow-y: auto;
-      margin-bottom: 10px;
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
-      background: #f9f9f9;
-    }
-    #message-input {
-      flex-shrink: 0;
-      width: calc(100% - 70px);
-      margin-right: 10px;
-      padding: 10px;
-    }
-    .input-container {
-      display: flex;
-    }
-    button {
-      width: 60px;
-      padding: 10px;
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background-color: #87CEEB; /* Light sky blue */
     }
   </style>
 </head>
 <body>
-  <div id="chat-container">
-    <div id="messages"></div>
-    <div class="input-container">
-      <input id="message-input" autocomplete="off" placeholder="Type your message..." />
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
-
-  <script src="/socket.io/socket.io.js"></script>
+  <canvas id="gameCanvas" width="800" height="400"></canvas>
   <script>
-    const socket = io(); // Connects to the WebSocket server
-    const messages = document.getElementById("messages");
-    const messageInput = document.getElementById("message-input");
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-    // Listen for messages from the server
-    socket.on("chat message", (msg) => {
-      const newMessage = document.createElement("div");
-      newMessage.textContent = msg;
-      messages.appendChild(newMessage);
-      messages.scrollTop = messages.scrollHeight;
-    });
+    // Game variables
+    const gravity = 0.5;
+    const player = {
+      x: 50,
+      y: 300,
+      width: 30,
+      height: 50,
+      dx: 0,
+      dy: 0,
+      speed: 5,
+      jumpForce: -12,
+      onGround: false,
+    };
+    const platforms = [
+      { x: 0, y: 350, width: 800, height: 50 }, // Ground platform
+      { x: 200, y: 300, width: 100, height: 10 },
+      { x: 400, y: 250, width: 150, height: 10 },
+    ];
 
-    // Send a message to 
+    function drawPlayer() {
+      ctx.fillStyle = 'red';
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
+
+    function drawPlatforms() {
+      ctx.fillStyle = 'green';
+      platforms.forEach(plat => {
+        ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+      });
+    }
+
+    function movePlayer() {
+      player.dy += gravity; // Apply gravity
+      player.y += player.dy;
+      player.x += player.dx;
+
+      // Check for collisions with platforms
+      player.onGround = false;
+      platforms.forEach(plat => {
+        if (
+          player.x < plat.x + plat.width &&
+          player.x + player.width > plat.x &&
+          player.y + player.height <= plat.y &&
+          player.y + player.height + player.dy >= plat.y
+        ) {
+          player.dy = 0; // Stop falling
+          player.y = plat.y - player.height; // Place player on top of platform
+          player.onGround = true;
+        }
+      });
+
+      // Prevent going off canvas
+      if (player.x < 0) player.x = 0;
+      if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+      if (player.y > canvas.height) {
+        player.y = canvas.height - player.height;
+        player.dy = 0;
+        player.onGround = true;
+      }
+    }
+
+    function handleInput() {
+      document.addEventListener('keydown', e => {
+        if (e.code === 'ArrowLeft') player.dx = -player.speed;
+        if (e.code === 'ArrowRight') player.dx = player.speed;
+        if (e.code === 'Space' && player.onGround) player.dy = player.jumpForce;
+      });
+
+      document.addEventListener('keyup', e => {
+        if (e.code === 'ArrowLeft' || e.code === 'ArrowRight') player.dx = 0;
+      });
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawPlatforms();
+      drawPlayer();
+      movePlayer();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Initialize
+    handleInput();
+    gameLoop();
+  </script>
+</body>
+</html>
