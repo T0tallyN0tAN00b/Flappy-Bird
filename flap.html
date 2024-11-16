@@ -69,9 +69,11 @@
         }
       });
 
-      // Prevent going off canvas
+      // Prevent going off the canvas
       if (player.x < 0) player.x = 0;
       if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+      // Check if player falls off the screen
       if (player.y > canvas.height) {
         player.y = canvas.height - player.height;
         player.dy = 0;
