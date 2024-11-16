@@ -57,6 +57,7 @@
       // Check for collisions with platforms
       player.onGround = false;
       platforms.forEach(plat => {
+        // If the player is falling and collides with a platform
         if (
           player.x < plat.x + plat.width &&
           player.x + player.width > plat.x &&
@@ -69,11 +70,18 @@
         }
       });
 
-      // Prevent going off the canvas
+      // Prevent player from falling through the floor (ground platform)
+      if (player.y + player.height >= platforms[0].y) {
+        player.y = platforms[0].y - player.height; // Stop at ground level
+        player.dy = 0; // Reset vertical speed
+        player.onGround = true;
+      }
+
+      // Prevent going off the canvas horizontally
       if (player.x < 0) player.x = 0;
       if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
 
-      // Check if player falls off the screen
+      // If player falls below the screen
       if (player.y > canvas.height) {
         player.y = canvas.height - player.height;
         player.dy = 0;
@@ -85,7 +93,7 @@
       document.addEventListener('keydown', e => {
         if (e.code === 'ArrowLeft') player.dx = -player.speed;
         if (e.code === 'ArrowRight') player.dx = player.speed;
-        if (e.code === 'Space' && player.onGround) player.dy = player.jumpForce;
+        if (e.code === 'Space' && player.onGround) player.dy = player.jumpForce; // Jump only if on ground
       });
 
       document.addEventListener('keyup', e => {
@@ -94,14 +102,14 @@
     }
 
     function gameLoop() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous frame
       drawPlatforms();
       drawPlayer();
       movePlayer();
-      requestAnimationFrame(gameLoop);
+      requestAnimationFrame(gameLoop); // Repeat game loop
     }
 
-    // Initialize
+    // Initialize game
     handleInput();
     gameLoop();
   </script>
