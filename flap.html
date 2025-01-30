@@ -23,8 +23,8 @@
     <div id="chatContainer" style="display: none;">
         <div class="chat-box" id="chatBox"></div>
         <div class="input-box">
-            <input type="text" id="messageInput" placeholder="Type a message...">
-            <button onclick="sendMessage()">Send</button>
+            <input type="text" id="messageInput" placeholder="Type a message..." disabled>
+            <button onclick="sendMessage()" disabled>Send</button>
         </div>
     </div>
     <script>
@@ -36,10 +36,14 @@
                 userName = nameInput;
                 document.getElementById("namePrompt").style.display = "none";
                 document.getElementById("chatContainer").style.display = "block";
+                document.getElementById("messageInput").disabled = false;
+                document.querySelector("button[onclick='sendMessage()']").disabled = false;
             }
         }
         
         function sendMessage() {
+            if (!userName) return;
+            
             const input = document.getElementById("messageInput");
             const chatBox = document.getElementById("chatBox");
             if (input.value.trim() !== "") {
