@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
         .chat-box { width: 100%; max-width: 400px; height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
@@ -28,6 +29,7 @@
         </div>
     </div>
     <script>
+        const socket = io("http://localhost:3000");
         let userName = "";
         
         function setUserName() {
@@ -45,16 +47,23 @@
             if (!userName) return;
             
             const input = document.getElementById("messageInput");
-            const chatBox = document.getElementById("chatBox");
             if (input.value.trim() !== "") {
-                const message = document.createElement("div");
-                message.classList.add("message", "you");
-                message.textContent = userName + ": " + input.value;
-                chatBox.appendChild(message);
-                chatBox.scrollTop = chatBox.scrollHeight;
+                socket.emit("chatMessage", { sender: userName, text: input.value });
                 input.value = "";
             }
         }
+        
+        socket.on("chatMessage", (msg) => {
+            const chatBox = document.getElementById("chatBox");
+            const message = document.createElement("div");
+            message.classList.add("message");
+            if (msg.sender === userName) {
+                message.classList.add("you");
+            }
+            message.textContent = msg.sender + ": " + msg.text;
+            chatBox.appendChild(message);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
     </script>
 </body>
 </html>
