@@ -3,67 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
-    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <title>3D Shooting Game</title>
     <style>
-        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .chat-box { width: 100%; max-width: 400px; height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
-        .message { margin: 5px 0; padding: 5px; border-radius: 5px; }
-        .message.you { background-color: #d1e7ff; align-self: flex-end; }
-        .input-box { display: flex; gap: 5px; width: 100%; max-width: 400px; }
-        input { flex: 1; padding: 5px; }
-        button { padding: 5px 10px; }
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
-    <h2>Chat App</h2>
-    <div id="namePrompt">
-        <input type="text" id="nameInput" placeholder="Enter your name">
-        <button onclick="setUserName()">Start Chat</button>
-    </div>
-    <div id="chatContainer" style="display: none;">
-        <div class="chat-box" id="chatBox"></div>
-        <div class="input-box">
-            <input type="text" id="messageInput" placeholder="Type a message..." disabled>
-            <button onclick="sendMessage()" disabled>Send</button>
-        </div>
-    </div>
-    <script>
-        const socket = io("http://localhost:3000");
-        let userName = "";
-        
-        function setUserName() {
-            const nameInput = document.getElementById("nameInput").value.trim();
-            if (nameInput !== "") {
-                userName = nameInput;
-                document.getElementById("namePrompt").style.display = "none";
-                document.getElementById("chatContainer").style.display = "block";
-                document.getElementById("messageInput").disabled = false;
-                document.querySelector("button[onclick='sendMessage()']").disabled = false;
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    // Scene setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Create a simple cube (target)
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
+    // Create a simple bullet (projectile)
+    const bulletGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+    const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    let bullets = [];
+
+    // Add a basic light
+    const light = new THREE.AmbientLight(0x404040);  // Ambient light
+    scene.add(light);
+
+    // Set camera position
+    camera.position.z = 5;
+
+    // Handle mouse click to shoot bullets
+    document.addEventListener('click', () => {
+        const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+        bullet.position.set(camera.position.x, camera.position.y, camera.position.z);
+        scene.add(bullet);
+        bullets.push(bullet);
+    });
+
+    // Animation loop
+    function animate() {
+        requestAnimationFrame(animate);
+
+        // Move bullets forward
+        bullets.forEach((bullet, index) => {
+            bullet.position.z -= 0.1;
+            if (bullet.position.z < -5) {
+                scene.remove(bullet);
+                bullets.splice(index, 1); // Remove bullet from array
             }
-        }
-        
-        function sendMessage() {
-            if (!userName) return;
-            
-            const input = document.getElementById("messageInput");
-            if (input.value.trim() !== "") {
-                socket.emit("chatMessage", { sender: userName, text: input.value });
-                input.value = "";
-            }
-        }
-        
-        socket.on("chatMessage", (msg) => {
-            const chatBox = document.getElementById("chatBox");
-            const message = document.createElement("div");
-            message.classList.add("message");
-            if (msg.sender === userName) {
-                message.classList.add("you");
-            }
-            message.textContent = msg.sender + ": " + msg.text;
-            chatBox.appendChild(message);
-            chatBox.scrollTop = chatBox.scrollHeight;
         });
-    </script>
+
+        // Collision check
+        bullets.forEach((bullet) => {
+            if (bullet.position.distanceTo(cube.position) < 1) {
+                cube.material.color.set(0x0000ff); // Change color when hit
+                scene.remove(bullet);
+            }
+        });
+
+        // Render the scene
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Resize the canvas when the window size changes
+    window.addEventListener('resize', () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    });
+</script>
+
 </body>
 </html>
