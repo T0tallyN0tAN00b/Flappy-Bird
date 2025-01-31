@@ -12,6 +12,8 @@
 <body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three/examples/js/controls/PointerLockControls.js"></script>
+
 <script>
     // Scene setup
     const scene = new THREE.Scene();
@@ -20,65 +22,124 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Create a simple cube (target)
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const cube = new THREE.Mesh(geometry, material);
+    // Lighting setup
+    const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(5, 10, 5);
+    scene.add(directionalLight);
+
+    // Background color
+    scene.background = new THREE.Color(0x87CEEB); // Light sky blue
+
+    // Create the ground (simple plane)
+    const groundGeometry = new THREE.PlaneGeometry(100, 100);
+    const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.rotation.x = Math.PI / 2;  // Rotate to make it flat
+    scene.add(ground);
+
+    // Create a target (cube)
+    const targetGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const targetMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const cube = new THREE.Mesh(targetGeometry, targetMaterial);
+    cube.position.set(0, 0.5, -5);
     scene.add(cube);
 
-    // Create a simple bullet (projectile)
+    // Create bullets (spheres)
     const bulletGeometry = new THREE.SphereGeometry(0.1, 16, 16);
     const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     let bullets = [];
 
-    // Add a basic light
-    const light = new THREE.AmbientLight(0x404040);  // Ambient light
-    scene.add(light);
+    // Camera controls (pointer lock for first-person view)
+    const controls = new THREE.PointerLockControls(camera, renderer.domElement);
 
-    // Set camera position
-    camera.position.z = 5;
+    // Movement variables
+    const velocity = new THREE.Vector3();
+    const direction = new THREE.Vector3();
+    const speed = 0.1;
 
-    // Handle mouse click to shoot bullets
+    let canShoot = true;
+
+    // Handle movement controls
+    function handleMovement() {
+        velocity.x = 0;
+        velocity.z = 0;
+
+        if (keys['w']) velocity.z -= speed;
+        if (keys['s']) velocity.z += speed;
+        if (keys['a']) velocity.x -= speed;
+        if (keys['d']) velocity.x += speed;
+
+        camera.position.add(velocity);
+    }
+
+    // Shooting bullets
     document.addEventListener('click', () => {
-        const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-        bullet.position.set(camera.position.x, camera.position.y, camera.position.z);
-        scene.add(bullet);
-        bullets.push(bullet);
+        if (canShoot) {
+            const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+            bullet.position.set(camera.position.x, camera.position.y, camera.position.z);
+            scene.add(bullet);
+            bullets.push(bullet);
+            canShoot = false;
+
+            // Reset shooting after a delay
+            setTimeout(() => {
+                canShoot = true;
+            }, 500);
+        }
+    });
+
+    // Resize handling
+    window.addEventListener('resize', () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    });
+
+    // Handle keys
+    const keys = {};
+    document.addEventListener('keydown', (event) => {
+        keys[event.key] = true;
+    });
+
+    document.addEventListener('keyup', (event) => {
+        keys[event.key] = false;
     });
 
     // Animation loop
     function animate() {
         requestAnimationFrame(animate);
 
+        handleMovement();
+
         // Move bullets forward
         bullets.forEach((bullet, index) => {
             bullet.position.z -= 0.1;
-            if (bullet.position.z < -5) {
+            if (bullet.position.z < -10) {
                 scene.remove(bullet);
                 bullets.splice(index, 1); // Remove bullet from array
             }
-        });
 
-        // Collision check
-        bullets.forEach((bullet) => {
+            // Collision detection with the cube
             if (bullet.position.distanceTo(cube.position) < 1) {
-                cube.material.color.set(0x0000ff); // Change color when hit
+                cube.material.color.set(0x0000ff); // Change to blue when hit
                 scene.remove(bullet);
             }
         });
 
-        // Render the scene
+        // Update controls and render the scene
+        controls.update();
         renderer.render(scene, camera);
     }
 
+    // Start the pointer lock
+    document.body.addEventListener('click', () => {
+        controls.lock();
+    });
+
     animate();
 
-    // Resize the canvas when the window size changes
-    window.addEventListener('resize', () => {
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-    });
 </script>
 
 </body>
