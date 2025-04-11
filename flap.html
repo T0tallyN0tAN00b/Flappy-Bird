@@ -92,9 +92,12 @@ let gameRunning = false;
 const merpImage = new Image();
 merpImage.src = 'data:image/png;base64,...'; // (truncated for brevity)
 
+// Add the event listeners directly
+startButton.addEventListener('click', startGame);
+restartButton.addEventListener('click', startGame);
+
 merpImage.onload = function() {
-  startButton.addEventListener('click', startGame);
-  restartButton.addEventListener('click', startGame);
+  // Now we can start the game since the image is loaded
 };
 
 function createMerp() {
@@ -157,26 +160,4 @@ function gameLoop() {
 
 function startGame() {
   score = 0;
-  missed = 0;
-  scoreDisplay.textContent = 'Score: 0';
-  titleScreen.style.display = 'none';
-  gameOverScreen.style.display = 'none';
-  scoreDisplay.style.display = 'block';
-  mers.length = 0;
-  gameRunning = true;
-  setInterval(createMerp, 800);
-  gameLoop();
-}
 
-function endGame() {
-  gameRunning = false;
-  scoreDisplay.style.display = 'none';
-  gameOverScreen.style.display = 'flex';
-}
-
-window.addEventListener('mousemove', (e) => {
-  player.x = e.clientX - player.width / 2;
-});
-</script>
-</body>
-</html>
