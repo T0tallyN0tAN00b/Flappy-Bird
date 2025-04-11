@@ -3,18 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merps Game</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Merp Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #000;
+            margin-top: 20px;
+        }
+        .score {
+            font-size: 24px;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-    <div id="gameArea">
-        <div id="player"></div>
-        <div id="score">Score: 0</div>
-        <div id="merp"></div>
-        <div id="obstacle"></div>
-    </div>
+    <h1>Merp Catcher Game!</h1>
+    <div class="score">Score: <span id="score">0</span></div>
+    <canvas id="gameCanvas" width="500" height="500"></canvas>
 
-    <script src="game.js"></script>
-</body>
-</html>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        let score = 0;
 
+        const merp = {
+            x: canvas.width / 2,
+            y: canvas.height - 30,
+            width: 50,
+            height: 50,
+            color: 'purple',
+            speed: 5
+        };
+
+        const fallingMerps = [];
+        const merpItemWidth = 30;
+        const merpItemHeight = 30;
+
+        function drawMerp() {
+            ctx.fillStyle = merp.color;
+            ctx.fillRect(merp.x, merp.y, merp.width, merp.height);
+        }
+
+        function drawFallingMerps() {
+            ctx.fillStyle = 'orange';
+            fallingMerps.forEach((item, index) => {
+                ctx.fillRect(item.x, item.y, merpItemWidth, merpItemHeight);
+
+                item.y += 2;
+                if (item.y > canvas.height) {
+                    fallingMerps.splice(index, 1); // Remove if it goes off-screen
+                }
+
+                if (item.y + merpItemHeight >= merp.y && 
+                    item.x + merpItemWidth > merp.x && 
+                    item.x < merp.x + merp.width) {
+                    // Merp catches the item
+                    fallingMerps.splice(index, 1); // Remove the falling item
+                    score++;
+                    scoreElement.textContent = `Score: ${score}`;
+                }
+            });
+        }
+
+        function generateFallingMerp() {
+            const x = Math.random() * (canvas.width - merpItemWidth);
+            fallingMerps.push({ x, y: 0 });
+        }
+
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawMerp();
+            drawFallingMerps();
+
+            requestAnimationFrame(updateGame);
+        }
+
+        function moveMerp(event) {
+            if (event.key === 'ArrowLeft' && merp.x > 0) {
+                merp.x -= merp.speed;
+            }
+            if (event.key === 'ArrowRight' && merp.x + mer
+
+        
