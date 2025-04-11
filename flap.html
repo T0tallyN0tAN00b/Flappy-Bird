@@ -1,66 +1,20 @@
-let player = document.getElementById('player');
-let gameArea = document.getElementById('gameArea');
-let scoreDisplay = document.getElementById('score');
-let merp = document.getElementById('merp');
-let obstacle = document.getElementById('obstacle');
-let score = 0;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merps Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameArea">
+        <div id="player"></div>
+        <div id="score">Score: 0</div>
+        <div id="merp"></div>
+        <div id="obstacle"></div>
+    </div>
 
-let playerSpeed = 10;
-let merpSpeed = 2;
-let obstacleSpeed = 4;
+    <script src="game.js"></script>
+</body>
+</html>
 
-let playerX = 100;
-let playerY = 100;
-
-let merpX = Math.random() * (window.innerWidth - 30);
-let merpY = Math.random() * (window.innerHeight - 30);
-
-let obstacleX = Math.random() * (window.innerWidth - 60);
-let obstacleY = Math.random() * (window.innerHeight - 60);
-
-function movePlayer(event) {
-    if (event.key === "ArrowUp") playerY -= playerSpeed;
-    if (event.key === "ArrowDown") playerY += playerSpeed;
-    if (event.key === "ArrowLeft") playerX -= playerSpeed;
-    if (event.key === "ArrowRight") playerX += playerSpeed;
-
-    player.style.left = playerX + 'px';
-    player.style.top = playerY + 'px';
-}
-
-function checkCollision() {
-    if (playerX < merpX + 30 && playerX + 50 > merpX && playerY < merpY + 30 && playerY + 50 > merpY) {
-        score++;
-        merpX = Math.random() * (window.innerWidth - 30);
-        merpY = Math.random() * (window.innerHeight - 30);
-        merp.style.left = merpX + 'px';
-        merp.style.top = merpY + 'px';
-        scoreDisplay.innerText = `Score: ${score}`;
-    }
-
-    if (playerX < obstacleX + 60 && playerX + 50 > obstacleX && playerY < obstacleY + 60 && playerY + 50 > obstacleY) {
-        alert("Game Over! You hit the obstacle.");
-        score = 0;
-        scoreDisplay.innerText = `Score: ${score}`;
-        playerX = 100;
-        playerY = 100;
-    }
-}
-
-function updateGame() {
-    checkCollision();
-    obstacleY += obstacleSpeed;
-    if (obstacleY > window.innerHeight) {
-        obstacleY = -60;
-        obstacleX = Math.random() * (window.innerWidth - 60);
-    }
-
-    obstacle.style.top = obstacleY + 'px';
-    obstacle.style.left = obstacleX + 'px';
-    requestAnimationFrame(updateGame);
-}
-
-document.addEventListener('keydown', movePlayer);
-updateGame();
-
-      
