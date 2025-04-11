@@ -1,146 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Shooting Game</title>
-    <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MERP CATCHER 24/7</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background-color: #ffcdf0;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+      color: #6c00ff;
+      font-size: 3rem;
+      text-shadow: 2px 2px #fff;
+    }
+
+    #scoreboard {
+      font-size: 1.5rem;
+      margin: 10px;
+    }
+
+    #game {
+      position: relative;
+      width: 80vw;
+      height: 70vh;
+      background-color: #fefefe;
+      border: 5px dashed #ff00aa;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    .merp {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      background-image: url("https://upload.wikimedia.org/wikipedia/commons/3/3c/Emoji_u1f92a.svg");
+      background-size: cover;
+      cursor: pointer;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    #startBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      border: none;
+      background-color: #aaff00;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: transform 0.2s;
+    }
+
+    #startBtn:hover {
+      transform: scale(1.1);
+    }
+  </style>
 </head>
 <body>
+  <h1>MERP CATCHER 24/7</h1>
+  <div id="scoreboard">Score: <span id="score">0</span> | Time Left: <span id="timer">30</span>s</div>
+  <button id="startBtn">Start Game</button>
+  <div id="game"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three/examples/js/controls/PointerLockControls.js"></script>
+  <script>
+    const game = document.getElementById('game');
+    const scoreEl = document.getElementById('score');
+    const timerEl = document.getElementById('timer');
+    const startBtn = document.getElementById('startBtn');
 
-<script>
-    // Scene setup
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    let score = 0;
+    let timeLeft = 30;
+    let gameInterval;
+    let spawnInterval;
 
-    // Lighting setup
-    const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(5, 10, 5);
-    scene.add(directionalLight);
-
-    // Background color
-    scene.background = new THREE.Color(0x87CEEB); // Light sky blue
-
-    // Create the ground (simple plane)
-    const groundGeometry = new THREE.PlaneGeometry(100, 100);
-    const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = Math.PI / 2;  // Rotate to make it flat
-    scene.add(ground);
-
-    // Create a target (cube)
-    const targetGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const targetMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const cube = new THREE.Mesh(targetGeometry, targetMaterial);
-    cube.position.set(0, 0.5, -5);
-    scene.add(cube);
-
-    // Create bullets (spheres)
-    const bulletGeometry = new THREE.SphereGeometry(0.1, 16, 16);
-    const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    let bullets = [];
-
-    // Camera controls (pointer lock for first-person view)
-    const controls = new THREE.PointerLockControls(camera, renderer.domElement);
-
-    // Movement variables
-    const velocity = new THREE.Vector3();
-    const direction = new THREE.Vector3();
-    const speed = 0.1;
-
-    let canShoot = true;
-
-    // Handle movement controls
-    function handleMovement() {
-        velocity.x = 0;
-        velocity.z = 0;
-
-        if (keys['w']) velocity.z -= speed;
-        if (keys['s']) velocity.z += speed;
-        if (keys['a']) velocity.x -= speed;
-        if (keys['d']) velocity.x += speed;
-
-        camera.position.add(velocity);
+    function randomPosition() {
+      const x = Math.random() * (game.clientWidth - 80);
+      const y = Math.random() * (game.clientHeight - 80);
+      return { x, y };
     }
 
-    // Shooting bullets
-    document.addEventListener('click', () => {
-        if (canShoot) {
-            const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-            bullet.position.set(camera.position.x, camera.position.y, camera.position.z);
-            scene.add(bullet);
-            bullets.push(bullet);
-            canShoot = false;
+    function spawnMerp() {
+      const merp = document.createElement('div');
+      merp.classList.add('merp');
+      const { x, y } = randomPosition();
+      merp.style.left = `${x}px`;
+      merp.style.top = `${y}px`;
 
-            // Reset shooting after a delay
-            setTimeout(() => {
-                canShoot = true;
-            }, 500);
+      merp.addEventListener('click', () => {
+        score++;
+        scoreEl.textContent = score;
+        merp.remove();
+        // Optional: play merp sound
+        // new Audio('merp.mp3').play();
+      });
+
+      game.appendChild(merp);
+
+      setTimeout(() => {
+        if (game.contains(merp)) merp.remove();
+      }, 1500);
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 30;
+      scoreEl.textContent = score;
+      timerEl.textContent = timeLeft;
+      startBtn.disabled = true;
+      game.innerHTML = '';
+
+      gameInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(gameInterval);
+          clearInterval(spawnInterval);
+          alert(`MERP TIME OVER! Final Score: ${score}`);
+          startBtn.disabled = false;
         }
-    });
+      }, 1000);
 
-    // Resize handling
-    window.addEventListener('resize', () => {
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-    });
-
-    // Handle keys
-    const keys = {};
-    document.addEventListener('keydown', (event) => {
-        keys[event.key] = true;
-    });
-
-    document.addEventListener('keyup', (event) => {
-        keys[event.key] = false;
-    });
-
-    // Animation loop
-    function animate() {
-        requestAnimationFrame(animate);
-
-        handleMovement();
-
-        // Move bullets forward
-        bullets.forEach((bullet, index) => {
-            bullet.position.z -= 0.1;
-            if (bullet.position.z < -10) {
-                scene.remove(bullet);
-                bullets.splice(index, 1); // Remove bullet from array
-            }
-
-            // Collision detection with the cube
-            if (bullet.position.distanceTo(cube.position) < 1) {
-                cube.material.color.set(0x0000ff); // Change to blue when hit
-                scene.remove(bullet);
-            }
-        });
-
-        // Update controls and render the scene
-        controls.update();
-        renderer.render(scene, camera);
+      spawnInterval = setInterval(spawnMerp, 700);
     }
 
-    // Start the pointer lock
-    document.body.addEventListener('click', () => {
-        controls.lock();
-    });
-
-    animate();
-
-</script>
-
+    startBtn.addEventListener('click', startGame);
+  </script>
 </body>
 </html>
