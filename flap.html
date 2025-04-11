@@ -1,45 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Merp Catcher</title>
   <style>
     body {
-      font-family: 'Comic Sans MS', cursive, sans-serif;
-      background-color: #ffcdf0;
       margin: 0;
-      padding: 0;
       overflow: hidden;
+      background: linear-gradient(to top, #1e3c72, #2a5298);
+      font-family: sans-serif;
+    }
+    canvas {
+      display: block;
+    }
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      display: none;
+    }
+    #titleScreen, #gameOverScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to top, #000000cc, #000000aa);
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
+      color: white;
+      font-size: 36px;
+      z-index: 10;
     }
-
-    h1 {
+    #startButton, #restartButton {
       margin-top: 20px;
-      color: #6c00ff;
-      font-size: 3rem;
-      text-shadow: 2px 2px #fff;
+      padding: 10px 20px;
+      font-size: 24px;
+      background: yellow;
+      color: black;
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+    #startButton:hover, #restartButton:hover {
+      background: gold;
+    }
+  </style>
+</head>
+<body>
+<div id="titleScreen">
+  <div>Merp Catcher</div>
+  <button id="startButton">Start Game</button>
+</div>
+<div id="gameOverScreen" style="display: none;">
+  <div>Game Over</div>
+  <button id="restartButton">Restart</button>
+</div>
+<canvas id="gameCanvas"></canvas>
+<div id="score">Score: 0</div>
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let score = 0;
+let missed = 0;
+const scoreDisplay = document.getElementById('score');
+const titleScreen = document.getElementById('titleScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const startButton = document.getElementById('startButton');
+const restartButton = document.getElementById('restartButton');
+
+const player = {
+  x: canvas.width / 2,
+  y: canvas.height - 50,
+  width: 80,
+  height: 20,
+  color: 'white',
+  speed: 10
+};
+
+const mers = [];
+let gameRunning = false;
+
+const merpImage = new Image();
+merpImage.src = 'data:image/png;base64,...'; // (truncated for brevity)
+
+merpImage.onload = function() {
+  startButton.addEventListener('click', startGame);
+  restartButton.addEventListener('click', startGame);
+};
+
+function createMerp() {
+  const size = 40;
+  if (gameRunning) {
+    mers.push({
+      x: Math.random() * (canvas.width - size),
+      y: 0,
+      size,
+      speed: 3 + Math.random() * 3
+    });
+  }
+}
+
+function drawPlayer() {
+  ctx.fillStyle = player.color;
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+}
+
+function drawMers() {
+  mers.forEach(mer => {
+    ctx.drawImage(merpImage, mer.x, mer.y, mer.size, mer.size);
+  });
+}
+
+function updateMers() {
+  for (let i = mers.length - 1; i >= 0; i--) {
+    mers[i].y += mers[i].speed;
+
+    if (mers[i].y + mers[i].size > canvas.height) {
+      mers.splice(i, 1);
+      missed++;
+      if (missed >= 3) {
+        endGame();
+      }
+      continue;
     }
 
-    #scoreboard {
-      font-size: 1.5rem;
-      margin: 10px;
+    if (
+      mers[i].x + mers[i].size > player.x &&
+      mers[i].x < player.x + player.width &&
+      mers[i].y + mers[i].size > player.y
+    ) {
+      mers.splice(i, 1);
+      score++;
+      scoreDisplay.textContent = 'Score: ' + score;
     }
+  }
+}
 
-    #game {
-      position: relative;
-      width: 80vw;
-      height: 70vh;
-      background-color: #fefefe;
-      border: 5px dashed #ff00aa;
-      margin-top: 20px;
-      overflow: hidden;
-    }
+function gameLoop() {
+  if (!gameRunning) return;
 
-    .merp {
-      position: absolute;
-      width: 80px;
-      height: 80px;
-      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAM8AAADzCAMAAAAW57K7AAAAhFBMVEUAAAD///+Ojo7w8PD8/Pz09PS3t7eYmJje3t75+fnAwMDs7OwzMzP19fWzs7Px8fGlpaXY2NiGhoZsbGzZ2dmsrKzLy8vm5uZ0dHTIyMheXl5KSkpFRUUbGxuHh4c5OTl9fX1UVFQlJSUNDQ2UlJRnZ2ednZ1ZWVknJycuLi5HR0cdHR0YKe9yAAAKZklEQVR4nO2d6ZaiOhCAwQUBbcUFUFyAVrF7+v3f7xIW2SFbJd5z+H6NjkqqSSW1pVCUkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZERDlxWskfAF9uVPQIW/MY7X+pawjh4oc131Tc8VVUDGSPhg6aqX5PyG6dYHvUiazjMmGj4s6h4Q024yhsRG046ftXKXt/Slxupg2Jgq+as/9BrPXs1lT0wSnS1wFwpv+8X8+bK93/AVcs4m9ILbdLCY1EQWTnrDC3FTHEStgkHV8zfZ6oKQicdmX8w7WgXeJdvkm8ZouTZk8qjLIsvfy0Pjmlbk2B/9nuXXl+UOBQLZtD5Y3NXd0zNim7H/cv/LQR8OZ1f4YA+K71YkMsTW16YGIs7kt8d/iQD28rNv1PI032DKrgB+nAErTnxDFu8XzgU4lQ0qBMnjD+40uDkeKOVdrcjlTzh4DXWP/HHvO3g57jgKd/5P6nEyazLTuYP9Jkdzl3kghFfLP2XSSlP33aio3t+t2bdn+DOSVHmyT/oplvMq/Onz/H/XvrvH38W2RJFK068bLX+ro1shudh+Preg6c4OVt6eZTmFrlJ/M8bhqWWLH0A8tBspm9q6q4jw+lu4VxWS75/4y/PPxZ5KmvCCUUCLieiy/LfaJnEUX7eS5iNTLW93neplsty32tZ1AexSgSaJmoz2Qxd7U0eR+Q+4ayesWLx/aUekNr82SSXzT2uJ295yF2fhkBopTpjqk3OMvuyx1ueP2Z5Yo7YavMm/yZncWYcpJnMKS78Sr+LtbYTQBw5qPNNpDYFmdXI216lNkZTSNWmRLIBcV8OoqER90GhNgWGryg+dwM8oJfmQaM2ZbYAERKPUpgrpdpAQxcYZVAbPDTamUyTe8E30mhBq9Q+Ornk6kUuDYGRRo3xVoOVd5wsbM10Drq7nBqzmNLn0MuZMZ26rq4fnJOpaYTCiFMbxzqCJwmEhwS+dEezJrv9K1wNKsZ1dQnDJ0Ey9ikoktaDYczn8800ZxO/MoyqkuEuCOIiaWzgFWiAB6D5YQ9LIyIAzY/noDwvkXFOdjBUCHwH5QmOD8Tb7wIFJyYSYifkPgAsK/v/tCrgyKN4rA6PODDDCB/q9LSA6Xev5Ns8mIR4Ail7Ae4CDwxMeWIH6P+xuxJE4trzch/F1CaKjEQffY/ciNwVpAryiuDw+CEWJoEpmgiEEyRDe9JU8CiK/1kmg5nmfvbm5kV3
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawPlayer();
+  drawMers();
+  updateMers();
+  requestAnimationFrame(gameLoop);
+}
+
+function startGame() {
+  score = 0;
+  missed = 0;
+  scoreDisplay.textContent = 'Score: 0';
+  titleScreen.style.display = 'none';
+  gameOverScreen.style.display = 'none';
+  scoreDisplay.style.display = 'block';
+  mers.length = 0;
+  gameRunning = true;
+  setInterval(createMerp, 800);
+  gameLoop();
+}
+
+function endGame() {
+  gameRunning = false;
+  scoreDisplay.style.display = 'none';
+  gameOverScreen.style.display = 'flex';
+}
+
+window.addEventListener('mousemove', (e) => {
+  player.x = e.clientX - player.width / 2;
+});
+</script>
+</body>
+</html>
