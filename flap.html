@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MERP CATCHER 24/7</title>
+  <title>Merp Catcher</title>
   <style>
     body {
       font-family: 'Comic Sans MS', cursive, sans-serif;
@@ -42,8 +42,10 @@
       position: absolute;
       width: 80px;
       height: 80px;
-      background-image: url("https://upload.wikimedia.org/wikipedia/commons/3/3c/Emoji_u1f92a.svg");
+      background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Face_with_rolling_eyes_Emoji.png/240px-Face_with_rolling_eyes_Emoji.png");
       background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
       cursor: pointer;
       animation: spin 1s linear infinite;
     }
@@ -56,87 +58,3 @@
     #startBtn {
       margin-top: 20px;
       padding: 10px 20px;
-      font-size: 1.2rem;
-      border: none;
-      background-color: #aaff00;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: transform 0.2s;
-    }
-
-    #startBtn:hover {
-      transform: scale(1.1);
-    }
-  </style>
-</head>
-<body>
-  <h1>MERP CATCHER 24/7</h1>
-  <div id="scoreboard">Score: <span id="score">0</span> | Time Left: <span id="timer">30</span>s</div>
-  <button id="startBtn">Start Game</button>
-  <div id="game"></div>
-
-  <script>
-    const game = document.getElementById('game');
-    const scoreEl = document.getElementById('score');
-    const timerEl = document.getElementById('timer');
-    const startBtn = document.getElementById('startBtn');
-
-    let score = 0;
-    let timeLeft = 30;
-    let gameInterval;
-    let spawnInterval;
-
-    function randomPosition() {
-      const x = Math.random() * (game.clientWidth - 80);
-      const y = Math.random() * (game.clientHeight - 80);
-      return { x, y };
-    }
-
-    function spawnMerp() {
-      const merp = document.createElement('div');
-      merp.classList.add('merp');
-      const { x, y } = randomPosition();
-      merp.style.left = `${x}px`;
-      merp.style.top = `${y}px`;
-
-      merp.addEventListener('click', () => {
-        score++;
-        scoreEl.textContent = score;
-        merp.remove();
-        // Optional: play merp sound
-        // new Audio('merp.mp3').play();
-      });
-
-      game.appendChild(merp);
-
-      setTimeout(() => {
-        if (game.contains(merp)) merp.remove();
-      }, 1500);
-    }
-
-    function startGame() {
-      score = 0;
-      timeLeft = 30;
-      scoreEl.textContent = score;
-      timerEl.textContent = timeLeft;
-      startBtn.disabled = true;
-      game.innerHTML = '';
-
-      gameInterval = setInterval(() => {
-        timeLeft--;
-        timerEl.textContent = timeLeft;
-        if (timeLeft <= 0) {
-          clearInterval(gameInterval);
-          clearInterval(spawnInterval);
-          alert(`MERP TIME OVER! Final Score: ${score}`);
-          startBtn.disabled = false;
-        }
-      }, 1000);
-
-      spawnInterval = setInterval(spawnMerp, 700);
-    }
-
-    startBtn.addEventListener('click', startGame);
-  </script>
-</body>
-</html>
